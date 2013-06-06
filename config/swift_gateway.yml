@@ -1,0 +1,27 @@
+---
+cloud_controller_uri: http://127.0.0.1:8181
+service:
+  name: swift
+  version: "1.0"
+  description: 'Swift service'
+  plans: ['free']
+  default_plan: free
+  tags: ['swift', 'swift-1.0', 'storage', 'openstack']
+  supported_versions: ['1.0']
+  version_aliases:
+    'current': '1.0'
+ip_route: localhost
+index: 0
+uaa_client_id: vmc
+uaa_endpoint: http://localhost:8080/uaa
+uaa_client_auth_credentials:
+  username: admin@anynines.com
+  password: "adminusersecret"
+service_auth_tokens:
+  swift_core: "swift-token"
+logging:
+  level: debug
+mbus: nats://localhost:4222
+pid: /tmp/swift_service.pid
+node_timeout: 2
+cc_api_version: v2

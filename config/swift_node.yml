@@ -1,0 +1,15 @@
+---
+plan: free
+capacity: 100
+local_db: sqlite3:/tmp/swift_node.db
+mbus: nats://localhost:4222
+base_dir: /tmp/swift/
+index: 0
+logging:
+  level: debug
+pid: /tmp/swift_node.pid
+node_id: swift_node_1
+port: 5002
+supported_versions: ["1.0"]
+default_version: "1.0"
+database_lock_file: /tmp/db_lock
