@@ -1,0 +1,29 @@
+---
+plan: free
+capacity: 10000
+local_db: sqlite3:/tmp/swift_node.db
+mbus: nats://localhost:4222
+base_dir: /tmp/swift/
+index: 0
+logging:
+  level: debug
+pid: /tmp/swift_node.pid
+node_id: swift_node_1
+port: 5002
+supported_versions: ["1.0"]
+default_version: "1.0"
+database_lock_file: /tmp/db_lock
+fog_connection:
+  identity:
+     provider: 'OpenStack'
+     openstack_username: "yourusername"
+     openstack_api_key: "yourpassword"
+     openstack_auth_url:  'https://auth.yourdomain.com:5000/v2.0/tokens'
+  storage:
+     provider: 'HP'
+     hp_access_key: "your_username_not_user_id"
+     hp_secret_key: "your_password"
+     hp_tenant_id: "your_tenant_id_not_tenant_name"
+     hp_auth_uri:  'https://auth.yourdomain.com:5000/v2.0/'
+     hp_use_upass_auth_style: true
+     hp_avl_zone: 'nova'
