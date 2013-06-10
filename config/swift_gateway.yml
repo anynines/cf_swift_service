@@ -23,5 +23,5 @@ logging:
   level: debug
 mbus: nats://localhost:4222
 pid: /tmp/swift_service.pid
-node_timeout: 2
+node_timeout: 45
 cc_api_version: v2
