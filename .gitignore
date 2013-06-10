@@ -27,4 +27,4 @@ vendor/plugins/*
 print.css.css
 public/system
 db/.~lock*
-config/swift_node.yml
+config/fog.yml

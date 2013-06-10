@@ -1,0 +1,30 @@
+h1. Cloud Foundry OpenStack Swift Service
+
+This service allows to integration an OpenStack Swift as a Cloud Foundry service.
+
+h2. Prerequisites
+
+* A running OpenStack installation including Swift.
+* The service has been tested against a OpenStack Grizzly installation.
+
+h2. How it works
+
+h3. Provision
+
+* Create tenant: When a Swift service instance is provisioned, a OpenStack tenant (project) is created.
+* Create user: for the new tenant also a user is generated.
+* Create directory: a directory is created.
+
+By creating an OpenStack tenant (project) a Cloud Foundry user can only see buckets of his OpenStack tenant.
+OpenStack tenants are meant to isolate resources from each other.
+
+h3. Bind
+
+Binding to a Swift service instance means to create a user for the given Swift Tenant (representing a Cloud Foundry Swift service instance).
+This means it is possible to have multiple Cloud Foundry apps to bind to the same OpenStack tenant and hence access the same
+Swift bucket.
+
+h2. Plans
+
+The current implementation supports only the *"free" plan and does not enforce any quota*.
+However, this is to be addressed in future versions.

@@ -13,3 +13,4 @@ port: 5002
 supported_versions: ["1.0"]
 default_version: "1.0"
 database_lock_file: /tmp/db_lock
+op_time_limit: 45

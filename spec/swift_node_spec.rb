@@ -40,21 +40,21 @@ module VCAP::Services::Swift
     before :each do
       @default_plan = "free"
       @default_opts = "default"
-      @Swifter = @node.provision(@default_plan)
-      @Swifter.should_not == nil
+      @swift_credentials = @node.provision(@default_plan)
+      @swift_credentials.should_not == nil
     end
 
     it "should provison a Swift service with correct credential" do
       EM.run do
-        @Swifter.should be_instance_of Hash
-        @Swifter["port"].should be 5002
+        @swift_credentials.should be_instance_of Hash
+        @swift_credentials["port"].should be 5002
         EM.stop
       end
     end
 
     it "should create a crediential when binding" do
       EM.run do
-        binding = @node.bind(@Swifter["name"], @default_opts)
+        binding = @node.bind(@swift_credentials["name"], @default_opts)
         binding["port"].should be 5002
         EM.stop
       end
@@ -62,8 +62,8 @@ module VCAP::Services::Swift
 
     it "should supply different credentials when binding evoked with the same input" do
       EM.run do
-        binding1 = @node.bind(@Swifter["name"], @default_opts)
-        binding2 = @node.bind(@Swifter["name"], @default_opts)
+        binding1 = @node.bind(@swift_credentials["name"], @default_opts)
+        binding2 = @node.bind(@swift_credentials["name"], @default_opts)
         binding1.should_not be binding2
         EM.stop
       end
@@ -71,14 +71,14 @@ module VCAP::Services::Swift
 
     it "shoulde delete crediential after unbinding" do
       EM.run do
-        binding = @node.bind(@Swifter["name"], @default_opts)
+        binding = @node.bind(@swift_credentials["name"], @default_opts)
         @node.unbind(binding)
         EM.stop
       end
     end
 
     after :each do
-      name = @Swifter["name"]
+      name = @swift_credentials["name"]
       @node.unprovision(name)
     end
   end
