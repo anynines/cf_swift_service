@@ -134,15 +134,15 @@ GEM
     em-socksify (0.1.0)
       eventmachine
     eventmachine_httpserver (0.2.1)
-    excon (0.22.1)
+    excon (0.25.0)
     fastercsv (1.5.5)
-    fog (1.9.0)
+    fog (1.10.0)
       builder
       excon (~> 0.14)
       formatador (~> 0.2.0)
       mime-types
       multi_json (~> 1.0)
-      net-scp (~> 1.0.4)
+      net-scp (~> 1.1)
       net-ssh (>= 2.1.3)
       nokogiri (~> 1.5.0)
       ruby-hmac
@@ -164,10 +164,10 @@ GEM
       eventmachine (>= 0.12.10)
       json_pure (>= 1.7.3)
       thin (>= 1.3.1)
-    net-scp (1.0.4)
-      net-ssh (>= 1.99.1)
+    net-scp (1.1.1)
+      net-ssh (>= 2.6.5)
     net-ssh (2.6.7)
-    nokogiri (1.5.9)
+    nokogiri (1.5.10)
     posix-spawn (0.3.6)
     pry (0.9.12.2)
       coderay (~> 1.0.5)
@@ -235,7 +235,7 @@ DEPENDENCIES
   do_sqlite3
   em-http-request
   eventmachine!
-  fog
+  fog (= 1.10.0)
   multi_json
   nats (>= 0.4.8)
   pry

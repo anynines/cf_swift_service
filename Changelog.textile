@@ -1,3 +1,7 @@
 h1. 0.1.0
 
-* Initial implementation
+* Initial implementation: Creates tenants on provision and users on bind.
+
+h2. 0.2.0
+
+* Also creates 

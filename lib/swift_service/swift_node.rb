@@ -16,10 +16,11 @@ end
 require "swift_service/common"
 require "swift_service/swift_error"
 require "swift_service/identity"
+require "swift_service/storage"
+
 
 #TODO Error case - Swift endpoint is not available
 #TODO Error case - User creation fails during provision (tenant then exists)
-#TODO Role assignment tenant, user, swiftoperator
 class VCAP::Services::Swift::Node
 
   include VCAP::Services::Swift::Common
@@ -30,18 +31,19 @@ class VCAP::Services::Swift::Node
     property :name,         String,   :key => true
     property :tenant_id,    String
     property :tenant_name,  Text  
+    property :account_meta_key, String
   end
   
   def initialize(options)
     super(options)
 
     @local_db = options[:local_db]
-    @port = options[:port]
+    @port     = options[:port]
     @base_dir = options[:base_dir]
     @supported_versions = options[:supported_versions]
     
-    @fog_options = load_fog_options
-    @identity = VCAP::Services::Swift::Identity.new(options[:logger], @fog_options)    
+    @fog_options  = load_fog_options
+    @identity     = VCAP::Services::Swift::Identity.new(options[:logger], @fog_options[:identity])    
   end
 
   # When the node is started it calculated
@@ -111,15 +113,36 @@ class VCAP::Services::Swift::Node
   end
   
   def save_instance(instance)          
-    @logger.info("Saving instance #{instance.name}...")      
-    tenant = @identity.create_tenant(instance.tenant_name)      
-    instance.tenant_id = tenant.id
     
+    begin
+      @logger.info("Saving instance #{instance.name}...")    
+      fog_options                 = @fog_options[:storage]
+      tenant                      = @identity.create_tenant(instance.tenant_name)
+      instance.tenant_id          = tenant.id
+      fog_options[:hp_tenant_id]  = tenant.id
+    
+      cf_service_admin_user       = @identity.find_user(@identity.keystone.current_user["id"])
+    
+      # In order set the account meta key the current cloud foundry swift service for openstack (e.g. admin) must      
+      # have the "ResellerAdmin" role for the recently generated tenant.
+      # The "_member_" role is not necessarily required.
+      @identity.assign_role_to_user_for_tenant(@fog_options[:swift_admin_reseller_role_id], cf_service_admin_user, tenant)
+    
+      account_meta_key            = generate_password
+      instance.account_meta_key   = account_meta_key                
+    # Don't eat up error messages and provide a backtrace (workaround for flaws in the base class).
+    rescue StandardError => e
+      @logger.error "An error occured: #{e.class.name}: #{e.message}\n#{e.backtrace}"
+      raise e
+    end
+          
     raise SwiftError.new(SwiftError::SWIFT_SAVE_INSTANCE_FAILED, instance.inspect) unless instance.save
     instance
   end
 
   def destroy_instance(instance)
+    #TODO Delete containers
+    #TODO Delete users
     @identity.delete_tenant(instance.tenant_id)
     raise SwiftError.new(SwiftError::SWIFT_DESTROY_INSTANCE_FAILED, instance.inspect) unless instance.destroy
   end
@@ -134,10 +157,9 @@ class VCAP::Services::Swift::Node
     tenant    = @identity.find_tenant(instance.tenant_id)    
     username  = "#{UUIDTools::UUID.random_create.to_s}.swift.user@#{@fog_options[:name_suffix]}"
     user      = @identity.create_user(tenant, username, generate_password)    
-    swift_operator_role = @identity.find_role(@fog_options[:swift_operator_role_id])
-    swift_operator_role.add_to_user(user, tenant)
+    @identity.assign_role_to_user_for_tenant(@fog_options[:swift_operator_role_id], user, tenant)
     
-    credential = {
+    credentials = {
       "name"                    => instance.name,
       "authentication_uri"      => @fog_options[:storage][:hp_auth_uri],
       "user_name"               => user.name,
@@ -145,12 +167,32 @@ class VCAP::Services::Swift::Node
       "password"                => user.password,
       "tenant_name"             => tenant.name,
       "tenant_id"               => tenant.id,
-      "availability_zone"       => @fog_options[:storage][:hp_avl_zone],
-      "authentication_version"  => @fog_options[:storage][:hp_auth_version]
+      "availability_zone"       => @fog_options[:storage][:hp_avl_zone] || "nova",
+      "authentication_version"  => @fog_options[:storage][:hp_auth_version],
+      "account_meta_key"        => instance.account_meta_key
     }
+    
+
+    storage                     = VCAP::Services::Swift::Storage.new(@logger, fog_credentials_from_cf_swift_credentials(credentials))        
+    storage.set_account_meta_key(instance.account_meta_key)
+    
+    credentials
   end
   
   protected
+  
+  def fog_credentials_from_cf_swift_credentials(cf_swift_credentials)
+    {
+           :provider => 'HP',
+           :hp_access_key => cf_swift_credentials["user_name"],
+           :hp_secret_key => cf_swift_credentials["password"],
+           :hp_tenant_id => cf_swift_credentials["tenant_id"],
+           :hp_auth_uri =>  cf_swift_credentials["authentication_uri"],
+           :hp_use_upass_auth_style => true,
+           :hp_avl_zone => cf_swift_credentials["availability_zone"],
+           :hp_auth_version => cf_swift_credentials["authentication_version"].to_sym
+    }
+  end
   
   def build_instance_from_scratch
     instance = ProvisionedService.new

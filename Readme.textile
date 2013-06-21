@@ -18,6 +18,9 @@ h3. Provision
 By creating an OpenStack tenant (project) a Cloud Foundry user can only see buckets of his OpenStack tenant.
 OpenStack tenants are meant to isolate resources from each other.
 
+An account meta key is set for the newly created tenant. With this tenant wide account meta key, being part of the bind credentials, users can
+create temporary urls to make private files selectively public for a limited time period.
+
 h3. Bind
 
 Binding to a Swift service instance means to create a user for the given Swift Tenant (representing a Cloud Foundry Swift service instance).

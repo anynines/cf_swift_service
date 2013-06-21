@@ -5,12 +5,14 @@ module VCAP
   module Services
     module Swift
       class Identity
+        
+        attr_reader :keystone
 
         # Options as passed into SwiftNode
         def initialize(logger, fog_options)
           @logger = logger
 
-          @keystone = Fog::Identity.new(fog_options[:identity])
+          @keystone = Fog::Identity.new(fog_options)
         end
 
         def find_tenant(id)
@@ -21,7 +23,7 @@ module VCAP
           @logger.info "Deleting tenant #{id}..."
           tenant = find_tenant(id)
           ret = tenant.destroy
-          @logger.info "done."
+          @logger.info "Done deleting tenant  ."
           ret
         end
 
@@ -29,17 +31,17 @@ module VCAP
           @logger.info "Creating tenant..."
           tenant = @keystone.tenants.create :name        => name,
                                             :description => 'Cloud Foundry Swift Tenant'
-          @logger.info "done."
+          @logger.info "Done creating tenant."
           tenant
         end
 
         def create_user(tenant, name, password)
-          @logger.info "Creating user..."
+          @logger.info "Creating user..."          
           user = @keystone.users.create :name       => name,
                                         :tenant_id  => tenant.id,
                                         :password   => password,
                                         :email      => name
-          @logger.info "done."
+          @logger.info "Done creating user."
           user
         end
 
@@ -51,7 +53,7 @@ module VCAP
           @logger.info "Deleting user #{id}..."
           user = find_user(id)
           user.destroy
-          @logger.info "done."
+          @logger.info "Done deleting user."
         end
 
         def find_role(id)
@@ -63,6 +65,18 @@ module VCAP
             return role if role.id.eql?(id)
           end
           nil
+        end
+        
+        #
+        # === Params 
+        # +role_id+:: Role id as string
+        # +user+:: Fog user object
+        # +tenant+:: Fog tenant object
+        def assign_role_to_user_for_tenant(role_id, user, tenant)
+          @logger.info "Assigning role #{role_id} to user #{user.name} (#{user.id}) for tenant #{tenant.name} (#{tenant.id})..."
+          role = find_role(role_id)
+          role.add_to_user(user, tenant)    
+          @logger.info "Done assigning role."
         end
       end
     end
