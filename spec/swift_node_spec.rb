@@ -47,7 +47,7 @@ module VCAP::Services::Swift
     it "should provison a Swift service with correct credential" do
       EM.run do
         @swift_credentials.should be_instance_of Hash
-        @swift_credentials["port"].should be 5002
+        @swift_credentials["authentication_uri"].should eql "https://auth.hydranodes.de:5000/v2.0/"
         EM.stop
       end
     end
@@ -55,7 +55,7 @@ module VCAP::Services::Swift
     it "should create a crediential when binding" do
       EM.run do
         binding = @node.bind(@swift_credentials["name"], @default_opts)
-        binding["port"].should be 5002
+        binding["authentication_uri"].should eql "https://auth.hydranodes.de:5000/v2.0/"
         EM.stop
       end
     end
