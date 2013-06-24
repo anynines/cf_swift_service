@@ -123,11 +123,6 @@ class VCAP::Services::Swift::Node
     
       cf_service_admin_user       = @identity.find_user(@identity.keystone.current_user["id"])
     
-      # In order set the account meta key the current cloud foundry swift service for openstack (e.g. admin) must      
-      # have the "ResellerAdmin" role for the recently generated tenant.
-      # The "_member_" role is not necessarily required.
-      @identity.assign_role_to_user_for_tenant(@fog_options[:swift_admin_reseller_role_id], cf_service_admin_user, tenant)
-    
       account_meta_key            = generate_password
       instance.account_meta_key   = account_meta_key                
     # Don't eat up error messages and provide a backtrace (workaround for flaws in the base class).
