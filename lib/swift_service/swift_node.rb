@@ -90,7 +90,7 @@ class VCAP::Services::Swift::Node
 
   def unprovision(name, credentials = [])
     return if name.nil?
-    @logger.debug("Unprovision swift service: #{name}")
+    @logger.debug("Unprovision swift service: #{name} with credentials #{credentials.inspect}")
     instance = get_instance(name)
     destroy_instance(instance)
     true
@@ -137,7 +137,9 @@ class VCAP::Services::Swift::Node
 
   def destroy_instance(instance)
     #TODO Delete containers
-    #TODO Delete users
+    
+    # Delete all users whose name end with name_suffix
+    @identity.delete_users_by_tenant_id(instance.tenant_id, @fog_options[:name_suffix])
     @identity.delete_tenant(instance.tenant_id)
     raise SwiftError.new(SwiftError::SWIFT_DESTROY_INSTANCE_FAILED, instance.inspect) unless instance.destroy
   end

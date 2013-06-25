@@ -55,6 +55,19 @@ module VCAP
           user.destroy
           @logger.info "Done deleting user."
         end
+        
+        # Deletes all users for the given tenant id.
+        # The user_name_filter can be used to ensure only users created by this service will be deleted.
+        def delete_users_by_tenant_id(tenant_id, user_name_filter = nil)
+          @logger.info "Deleting users for tenant_id #{tenant_id} applying the user_name_filter: #{user_name_filter}"
+          tenant = find_tenant(tenant_id)
+          tenant.users.each do |user|
+            next if user_name_filter && !user.name.end_with?(user_name_filter)
+            @logger.info "Deleting user #{user.name}"
+            user.destroy 
+          end
+          @logger.info "Done deleting users for tenant_id #{tenant_id}."
+        end
 
         def find_role(id)
           # Sadly roles.get doesn't work

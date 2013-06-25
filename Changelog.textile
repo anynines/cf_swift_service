@@ -1,7 +1,12 @@
+h2. 0.3.0
+
+* Deletion of tenants and users on unprovision and unbind.
+
+h2. 0.2.0
+
+* Also creates an account meta key allowing the creation of temporary URLs.
+
 h1. 0.1.0
 
 * Initial implementation: Creates tenants on provision and users on bind.
 
-h2. 0.2.0
-
-* Also creates 

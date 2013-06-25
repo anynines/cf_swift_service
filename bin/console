@@ -5,6 +5,7 @@
 ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../../Gemfile", __FILE__)
 require 'bundler/setup'
 require 'vcap_services_base'
+require 'yaml'
 
 $LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
 require "swift_service/swift_node"
@@ -23,7 +24,9 @@ def fog_credentials_from_cf_swift_credentials(cf_swift_credentials)
   }
 end
 
-storage_credentials = {"name"=>"41edf347-14b9-4e7f-8875-a969bd63daa0", "authentication_uri"=>"https://auth.hydranodes.de:5000/v2.0/", "user_name"=>"e3e924da-feb2-428d-8f73-dbec45407b9d.swift.user@a9s.eu", "user_id"=>"ca7069f1b60e46cf8ea73856c03f9c81", "password"=>"3LWaugMecKz9pupLRsg3", "tenant_name"=>"41edf347-14b9-4e7f-8875-a969bd63daa0.swift.tenant@a9s.eu", "tenant_id"=>"37cadb87e70941698c35553256e1cec3", "availability_zone"=>"nova", "authentication_version"=>"v2", "account_meta_key"=>"Y84jzzsUi82oCJMHdNbS", "node_id"=>"swift_node_1"}
+fog_configuration = YAML.load(File.read(File.expand_path("../../config/fog.yml", __FILE__)))
+
+storage_credentials = fog_configuration[:storage]
 
 class FakeLogger
   def debug(msg)
@@ -41,6 +44,9 @@ class FakeLogger
 end
 
 logger = FakeLogger.new
-storage = VCAP::Services::Swift::Storage.new(logger, fog_credentials_from_cf_swift_credentials(storage_credentials))
+
+# fog_credentials_from_cf_swift_credentials(
+storage   = VCAP::Services::Swift::Storage.new(logger, storage_credentials)
+identity  = VCAP::Services::Swift::Identity.new(logger, fog_configuration[:identity])    
 
 binding.pry
