@@ -81,6 +81,13 @@ module VCAP
             :method => 'GET'
           })
         end
+        
+        # Warning this deletes all directories and files!!!
+        def delete_account
+          @connection.request({
+            :method => 'DELETE'
+          })          
+        end
     
         #TODO Move to fog and make pull request.
         # === Params

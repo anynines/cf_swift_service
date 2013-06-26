@@ -136,9 +136,24 @@ class VCAP::Services::Swift::Node
   end
 
   def destroy_instance(instance)
-    #TODO Delete containers
+    fog_options                 = @fog_options[:storage]    
     
-    # Delete all users whose name end with name_suffix
+    
+    # FIXME: For some reasons the admin user is not allowed to delete a swift account. 
+    #   As a workaround we create a temporary user to delete the swift account and then
+    #   delete all users (incl. the newly created one).
+    tenant  = @identity.find_tenant(instance.tenant_id)        
+    user    = create_user_with_swiftoperator_role(tenant)
+    fog_options[:hp_tenant_id]    = "a891475c669d46f1ada4afe178e4c961" #instance.tenant_id
+    fog_options[:hp_access_key]   = "ffe4dc57-9044-4e21-a436-2e5dcc745d8a.swift.user@a9s.eu" #user.name
+    fog_options[:hp_secret_key]   = "HJfPm3undISZReWsrK3d" # user.password
+    fog_options[:hp_auth_version] = fog_options[:hp_auth_version].to_sym
+    storage                       = VCAP::Services::Swift::Storage.new(@logger, fog_options)
+ 
+    storage.delete_account
+
+    @logger.debug "Account meta data (should be 'Recently deleted'): " + storage.get_account_meta_data.body.to_s
+    
     @identity.delete_users_by_tenant_id(instance.tenant_id, @fog_options[:name_suffix])
     @identity.delete_tenant(instance.tenant_id)
     raise SwiftError.new(SwiftError::SWIFT_DESTROY_INSTANCE_FAILED, instance.inspect) unless instance.destroy
@@ -151,10 +166,8 @@ class VCAP::Services::Swift::Node
   end
 
   def gen_credential(instance)
-    tenant    = @identity.find_tenant(instance.tenant_id)    
-    username  = "#{UUIDTools::UUID.random_create.to_s}.swift.user@#{@fog_options[:name_suffix]}"
-    user      = @identity.create_user(tenant, username, generate_password)    
-    @identity.assign_role_to_user_for_tenant(@fog_options[:swift_operator_role_id], user, tenant)
+    tenant      = @identity.find_tenant(instance.tenant_id)        
+    user        = create_user_with_swiftoperator_role(tenant)
     
     credentials = {
       "name"                    => instance.name,
@@ -169,7 +182,6 @@ class VCAP::Services::Swift::Node
       "account_meta_key"        => instance.account_meta_key
     }
     
-
     storage                     = VCAP::Services::Swift::Storage.new(@logger, fog_credentials_from_cf_swift_credentials(credentials))        
     storage.set_account_meta_key(instance.account_meta_key)
     
@@ -177,6 +189,13 @@ class VCAP::Services::Swift::Node
   end
   
   protected
+  
+  def create_user_with_swiftoperator_role(tenant)
+    username    = "#{UUIDTools::UUID.random_create.to_s}.swift.user@#{@fog_options[:name_suffix]}"
+    user      = @identity.create_user(tenant, username, generate_password)        
+    @identity.assign_role_to_user_for_tenant(@fog_options[:swift_operator_role_id], user, tenant)
+    user
+  end
   
   def fog_credentials_from_cf_swift_credentials(cf_swift_credentials)
     {
