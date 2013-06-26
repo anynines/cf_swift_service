@@ -22,6 +22,8 @@ class VCAP::Services::Swift::NodeBin < VCAP::Services::Base::NodeBin
 
   def additional_config(options, config)
     options[:port] = parse_property(config, "port", Integer)
+    # register fog_config_file setting
+    options[:fog_config_file] = parse_property(config, "fog_config_file", String)
     options
   end
 

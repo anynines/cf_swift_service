@@ -42,7 +42,8 @@ class VCAP::Services::Swift::Node
     @base_dir = options[:base_dir]
     @supported_versions = options[:supported_versions]
     
-    @fog_options  = load_fog_options
+    # load fog_options from the config files
+    @fog_options  = load_fog_options(options[:fog_config_file])
     @identity     = VCAP::Services::Swift::Identity.new(options[:logger], @fog_options[:identity])    
   end
 
@@ -221,9 +222,9 @@ class VCAP::Services::Swift::Node
     ([nil]*length).map { ((48..57).to_a+(65..90).to_a+(97..122).to_a).sample.chr }.join
   end
   
-  def load_fog_options
+  def load_fog_options(fog_config_file)
     fog_options = nil
-    file_path   = File.join(File.dirname(File.expand_path(__FILE__)), "..", "..", "config", "fog.yml")
+    file_path   = fog_config_file ||= File.join(File.dirname(File.expand_path(__FILE__)), "..", "..", "config", "fog.yml")
     if File.exists?(file_path) then
       fog_options = YAML::load(File.open(file_path))
     else
