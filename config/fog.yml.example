@@ -13,6 +13,7 @@
    :provider: 'HP'
    :hp_access_key: "yourtenant"
    :hp_secret_key: "yourpass"
+   :hp_tenant_id: bfg337f13t3b4c1e7753af81567eff87d
    :hp_auth_uri:  'https://auth.example.de:5000/v2.0/'
    :hp_use_upass_auth_style: true
    :hp_avl_zone: 'nova'

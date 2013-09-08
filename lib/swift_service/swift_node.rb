@@ -1,7 +1,7 @@
 # Copyright (c) 2009-2011 VMware, Inc.
 require "fileutils"
 require "logger"
-require "datamapper"
+require "data_mapper"
 require "uuidtools"
 
 module VCAP
@@ -36,7 +36,7 @@ class VCAP::Services::Swift::Node
   
   def initialize(options)
     super(options)
-
+    
     @local_db = options[:local_db]
     @port     = options[:port]
     @base_dir = options[:base_dir]
@@ -44,6 +44,7 @@ class VCAP::Services::Swift::Node
     
     # load fog_options from the config files
     @fog_options  = load_fog_options(options[:fog_config_file])
+
     @identity     = VCAP::Services::Swift::Identity.new(options[:logger], @fog_options[:identity])    
   end
 
@@ -113,8 +114,7 @@ class VCAP::Services::Swift::Node
     DataMapper::auto_upgrade!
   end
   
-  def save_instance(instance)          
-    
+  def save_instance(instance)              
     begin
       @logger.info("Saving instance #{instance.name}...")    
       fog_options                 = @fog_options[:storage]

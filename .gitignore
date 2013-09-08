@@ -28,3 +28,5 @@ print.css.css
 public/system
 db/.~lock*
 config/fog.yml
+config/swift_node.yml
+config/swift_gateway.yml

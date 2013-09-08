@@ -1,0 +1,17 @@
+---
+plan: free
+capacity: 10000
+local_db: sqlite3:/tmp/swift_node.db
+mbus: nats://127.0.0.1:4222
+base_dir: /tmp/swift/
+index: 0
+logging:
+  level: debug
+pid: /tmp/swift_node.pid
+node_id: swift_node_1
+port: 5002
+supported_versions: ["1.0"]
+default_version: "1.0"
+database_lock_file: /tmp/db_lock
+op_time_limit: 45
+fog_config_file: config/fog.yml
