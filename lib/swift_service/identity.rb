@@ -88,6 +88,7 @@ module VCAP
         def assign_role_to_user_for_tenant(role_id, user, tenant)
           @logger.info "Assigning role #{role_id} to user #{user.name} (#{user.id}) for tenant #{tenant.name} (#{tenant.id})..."
           role = find_role(role_id)
+          @logger.error "Could not find role with id = #{role_id}" if role.nil?
           role.add_to_user(user, tenant)    
           @logger.info "Done assigning role."
         end
