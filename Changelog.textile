@@ -1,3 +1,8 @@
+h2. 0.4.0
+
+* Updates base gems to newer versions
+* Adds unique id to service gateway
+
 h2. 0.3.1
 * Nodes' Fog Configuration is configurable from swift_node.yml
 
