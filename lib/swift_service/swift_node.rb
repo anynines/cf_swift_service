@@ -180,7 +180,7 @@ class VCAP::Services::Swift::Node
       "tenant_id"               => tenant.id,
       "availability_zone"       => @fog_options[:storage][:hp_avl_zone] || "nova",
       "authentication_version"  => @fog_options[:storage][:hp_auth_version],
-      "service_type"            => @fog_options[:storage][:hp_service_type] || "Object Storage",
+      "service_type"            => @fog_options[:storage][:hp_service_type],
       "account_meta_key"        => instance.account_meta_key
     }
 
