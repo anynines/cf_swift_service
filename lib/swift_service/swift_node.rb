@@ -180,24 +180,25 @@ class VCAP::Services::Swift::Node
       "tenant_id"               => tenant.id,
       "availability_zone"       => @fog_options[:storage][:hp_avl_zone] || "nova",
       "authentication_version"  => @fog_options[:storage][:hp_auth_version],
+      "service_type"            => @fog_options[:storage][:hp_service_type],
       "account_meta_key"        => instance.account_meta_key
     }
-    
-    storage                     = VCAP::Services::Swift::Storage.new(@logger, fog_credentials_from_cf_swift_credentials(credentials))        
+
+    storage                     = VCAP::Services::Swift::Storage.new(@logger, fog_credentials_from_cf_swift_credentials(credentials))
     storage.set_account_meta_key(instance.account_meta_key)
-    
+
     credentials
   end
-  
+
   protected
-  
+
   def create_user_with_swiftoperator_role(tenant)
     username    = "#{UUIDTools::UUID.random_create.to_s}.swift.user@#{@fog_options[:name_suffix]}"
-    user      = @identity.create_user(tenant, username, generate_password)        
+    user      = @identity.create_user(tenant, username, generate_password)
     @identity.assign_role_to_user_for_tenant(@fog_options[:swift_operator_role_id], user, tenant)
     user
   end
-  
+
   def fog_credentials_from_cf_swift_credentials(cf_swift_credentials)
     {
            :provider => 'HP',
@@ -207,21 +208,22 @@ class VCAP::Services::Swift::Node
            :hp_auth_uri =>  cf_swift_credentials["authentication_uri"],
            :hp_use_upass_auth_style => true,
            :hp_avl_zone => cf_swift_credentials["availability_zone"],
-           :hp_auth_version => cf_swift_credentials["authentication_version"].to_sym
+           :hp_auth_version => cf_swift_credentials["authentication_version"].to_sym,
+           :hp_service_type => cf_swift_credentials["service_type"]
     }
   end
-  
+
   def build_instance_from_scratch
     instance = ProvisionedService.new
     instance.name = UUIDTools::UUID.random_create.to_s
     instance.tenant_name  = "#{instance.name}.swift.tenant@#{@fog_options[:name_suffix]}"
     instance
   end
-  
+
   def generate_password(length = 20)
     ([nil]*length).map { ((48..57).to_a+(65..90).to_a+(97..122).to_a).sample.chr }.join
   end
-  
+
   def load_fog_options(fog_config_file)
     fog_options = nil
     file_path   = fog_config_file ||= File.join(File.dirname(File.expand_path(__FILE__)), "..", "..", "config", "fog.yml")
