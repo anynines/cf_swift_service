@@ -114,6 +114,8 @@ class VCAP::Services::Swift::Node
     DataMapper::auto_upgrade!
   end
   
+  # An instance contains a tenant.
+  # This function creates a tenant for the instance, sets the account_meta_key and saves it.
   def save_instance(instance)              
     begin
       @logger.info("Saving instance #{instance.name}...")    
@@ -136,20 +138,22 @@ class VCAP::Services::Swift::Node
     instance
   end
 
+  # When destroying an instance, the instance's tenant and the tenant's users are completely deleted.
   def destroy_instance(instance)
     fog_options                 = @fog_options[:storage]    
     
-  
     # FIXME: For some reasons the admin user is not allowed to delete a swift account. 
-    #   As a workaround we create a temporary user to delete the swift account and then
-    #   delete all users (incl. the newly created one).
+    # As a workaround we create a temporary user to delete the swift account and then
+    # delete all users (incl. the newly created one).
     tenant  = @identity.find_tenant(instance.tenant_id)        
     user_hash    = create_user_with_swiftoperator_role(tenant)
     user = user_hash[:user]
-    fog_options[:hp_tenant_id]    = "a891475c669d46f1ada4afe178e4c961" #instance.tenant_id
-    fog_options[:hp_access_key]   = "ffe4dc57-9044-4e21-a436-2e5dcc745d8a.swift.user@a9s.eu" #user.name
-    fog_options[:hp_secret_key]   = "HJfPm3undISZReWsrK3d" # user.password
-    fog_options[:hp_auth_version] = fog_options[:hp_auth_version].to_sym
+    username = user_hash[:username]
+    password = user_hash[:password]
+    
+    fog_options[:hp_tenant_id]    = instance.tenant_id
+    fog_options[:hp_access_key]   = username
+    fog_options[:hp_secret_key]   = password
     storage                       = VCAP::Services::Swift::Storage.new(@logger, fog_options)
  
     storage.delete_account
