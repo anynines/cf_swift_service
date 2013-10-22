@@ -13,7 +13,8 @@ module VCAP
              :hp_auth_uri             =>  'https://auth.hydranodes.de:5000/v2.0/',
              :hp_use_upass_auth_style => true,
              :hp_avl_zone             => 'nova',
-             :hp_auth_version         => :v2
+             :hp_auth_version         => :v2,
+             :self_signed_ssl         => false
           })
 
           @logger                     = logger
@@ -22,6 +23,7 @@ module VCAP
         end
 
         def connect
+          Excon.defaults[:ssl_verify_peer] = false if @fog_options[:self_signed_ssl]
           @connection = Fog::Storage.new(@fog_options)
         rescue Excon::Errors::Unauthorized => e
           @logger.error "Couldn't connect to Fog, possibly due to missing _member_ role for user #{@fog_options[:hp_access_key]} and tenant: #{@fog_options[:hp_tenant_id]}"
