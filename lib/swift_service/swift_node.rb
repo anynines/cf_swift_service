@@ -190,6 +190,7 @@ class VCAP::Services::Swift::Node
       "authentication_version"  => @fog_options[:storage][:hp_auth_version],
       "account_meta_key"        => instance.account_meta_key,
       "self_signed_ssl"         => @fog_options[:storage][:self_signed_ssl] || false
+      "service_type"            => @fog_options[:storage][:hp_service_type],
     }
 
     storage                     = VCAP::Services::Swift::Storage.new(@logger, fog_credentials_from_cf_swift_credentials(credentials))
@@ -204,6 +205,7 @@ class VCAP::Services::Swift::Node
     username    = "#{UUIDTools::UUID.random_create.to_s}.swift.user@#{@fog_options[:name_suffix]}"
     password  = generate_password
     user      = @identity.create_user(tenant, username, password)
+    
     @identity.assign_role_to_user_for_tenant(@fog_options[:swift_operator_role_id], user, tenant)
     result_hash = {}
     result_hash[:username] = username
@@ -211,7 +213,7 @@ class VCAP::Services::Swift::Node
     result_hash[:user] = user
     result_hash
   end
-  
+
   def fog_credentials_from_cf_swift_credentials(cf_swift_credentials)
     {
            :provider => 'HP',
@@ -223,6 +225,7 @@ class VCAP::Services::Swift::Node
            :hp_avl_zone => cf_swift_credentials["availability_zone"],
            :hp_auth_version => cf_swift_credentials["authentication_version"].to_sym,
            :self_signed_ssl => cf_swift_credentials["self_signed_ssl"]
+           :hp_service_type => cf_swift_credentials["service_type"]
     }
   end
 

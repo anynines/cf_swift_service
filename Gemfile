@@ -18,7 +18,7 @@ gem 'warden-client', :require => ['warden/client'], :git => 'git://github.com/cl
 gem 'warden-protocol', :require => ['warden/protocol'], :git => 'git://github.com/cloudfoundry/warden.git', :ref => 'fe6cb51'
 
 gem 'multi_json'
-gem 'fog', "1.10.0"
+gem 'fog', "1.17.0"
 gem 'pry'
 
 group :development do
