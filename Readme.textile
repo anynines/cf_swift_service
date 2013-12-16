@@ -29,7 +29,7 @@ Swift bucket.
 
 h2. Plans
 
-The current implementation supports only the *"free" plan and does not enforce any quota*.
+The current implementation supports only the *"free" plan and enforce a quota of 10GB*.
 However, this is to be addressed in future versions.
 
 h2. Usage of the swift service within applications
