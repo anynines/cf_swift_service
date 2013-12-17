@@ -30,7 +30,8 @@ module VCAP
         def create_tenant(name)
           @logger.info "Creating tenant..."
           tenant = @keystone.tenants.create :name        => name,
-                                            :description => 'Cloud Foundry Swift Tenant'
+                                            :description => 'Cloud Foundry Swift Tenant',
+                                            :enabled => true
           @logger.info "Done creating tenant."
           tenant
         end
