@@ -64,13 +64,14 @@ GIT
       beefcake
 
 GIT
-  remote: https://github.com/anynines/fog.git
-  revision: 85eef15c4fe4110f49c6ca4b7f4011c5c0b75145
-  branch: openstack_find_user_by_name
+  remote: git@github.com:fog/fog.git
+  revision: b76f85fee3821444efb25ad06820ed50104569cc
+  branch: master
   specs:
     fog (1.20.0)
       builder
       excon (~> 0.31.0)
+      fog-brightbox
       fog-core (~> 1.21.0)
       fog-json
       formatador (~> 0.2.0)
@@ -184,6 +185,9 @@ GEM
     fluent-logger (0.4.6)
       msgpack (>= 0.4.4, < 0.6.0, != 0.5.3, != 0.5.2, != 0.5.1, != 0.5.0)
       yajl-ruby (~> 1.0)
+    fog-brightbox (0.0.1)
+      fog-core
+      fog-json
     fog-core (1.21.0)
       builder
       excon (~> 0.31.0)

@@ -18,8 +18,8 @@ gem 'warden-client', :require => ['warden/client'], :git => 'git://github.com/cl
 gem 'warden-protocol', :require => ['warden/protocol'], :git => 'git://github.com/cloudfoundry/warden.git', :ref => 'fe6cb51'
 
 gem 'multi_json'
-# gem 'fog', "1.17.0"
-gem 'fog', :git => 'https://github.com/anynines/fog.git', :branch => 'openstack_find_user_by_name', :require => 'fog/openstack'
+
+gem 'fog', :git => 'git@github.com:fog/fog.git', :branch => 'master'
 gem 'pry'
 
 group :development do
