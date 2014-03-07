@@ -1,5 +1,4 @@
-require 'fog/hp'
-require 'fog/openstack'
+require 'fog'
 
 module VCAP
   module Services

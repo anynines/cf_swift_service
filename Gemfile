@@ -19,7 +19,7 @@ gem 'warden-protocol', :require => ['warden/protocol'], :git => 'git://github.co
 
 gem 'multi_json'
 
-gem 'fog', :git => 'git://github.com/fog/fog.git', :branch => 'master'
+gem 'fog', :git => 'git://github.com/anynines/fog.git', :ref => '85eef15c4fe4110f49c6ca4b7f4011c5c0b75145', :require => 'fog/openstack'
 gem 'pry'
 
 group :development do
