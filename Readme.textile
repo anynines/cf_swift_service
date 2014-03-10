@@ -41,4 +41,4 @@ This "blog post":http://blog.anynines.com/how-to-use-the-anynines-swift-service-
 
 h3. Paperclip access
 
-
+A "blog post" about using the swift service within your applications using the paperclip gem: http://blog.anynines.com/how-to-use-the-anynines-swift-service-with-paperclip/
