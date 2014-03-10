@@ -32,6 +32,13 @@ h2. Plans
 The current implementation supports only the *"free" plan and enforce a quota of 10GB*.
 However, this is to be addressed in future versions.
 
+
 h2. Usage of the swift service within applications
 
+h3. Direct fog access
+
 This "blog post":http://blog.anynines.com/how-to-use-the-anynines-swift-service-with-your-app/ gives an introduction on how to use the cf swift service within your applications deployed on Cloud Foundry.
+
+h3. Paperclip access
+
+

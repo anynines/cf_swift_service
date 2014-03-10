@@ -126,7 +126,7 @@ class VCAP::Services::Swift::Node
       instance.tenant_id          = tenant.id
       instance.account_meta_key   = generate_password
 
-      cf_service_admin_user       = @identity.find_user_by_name('anynines')
+      cf_service_admin_user       = @identity.find_user_by_name(@fog_options[:storage][:hp_access_key])
       @identity.assign_role_to_user_for_tenant(@fog_options[:swift_operator_role_id], cf_service_admin_user, tenant)
       @identity.assign_role_to_user_for_tenant(@fog_options[:admin_reseller_role_id], cf_service_admin_user, tenant)
 
