@@ -3,6 +3,7 @@
 
 # This is the OpenStack ID of your swift operator role
 :swift_operator_role_id: "2021022271a74ecdb94ceeeeeae657ad"
+:admin_reseller_role_id: "adasdad229a9aas00888skdjj4jk33223"
 
 :identity:
   :provider: 'OpenStack'
@@ -10,13 +11,13 @@
   :openstack_api_key: "password"
   :openstack_auth_url:  'https://auth.example.de:5000/v2.0/tokens'
   :openstack_tenant: 'tenant_name'
-   
+
 :storage:
-  :provider: 'HP'
-  :hp_access_key: "yourtenant"
-  :hp_secret_key: "yourpass"
-  :hp_tenant_id: bfg337f13t3b4c1e7753af81567eff87d
-  :hp_auth_uri:  'https://auth.example.de:5000/v2.0/'
-  :hp_use_upass_auth_style: true
-  :hp_avl_zone: 'nova'
-  :hp_auth_version: "v2"
+   :provider: 'HP'
+   :hp_access_key: "yourtenant"
+   :hp_secret_key: "yourpass"
+   :hp_tenant_id: 'tenantid'
+   :hp_auth_uri:  'https://auth.example.de:5000/v2.0/'
+   :hp_use_upass_auth_style: true
+   :hp_avl_zone: 'nova'
+   :hp_auth_version: "v2"

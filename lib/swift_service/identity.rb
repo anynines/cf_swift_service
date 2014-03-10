@@ -1,6 +1,5 @@
 require 'fog'
 
-
 module VCAP
   module Services
     module Swift
@@ -37,7 +36,7 @@ module VCAP
         end
 
         def create_user(tenant, name, password)
-          @logger.info "Creating user..."          
+          @logger.info "Creating user..."
           user = @keystone.users.create :name       => name,
                                         :tenant_id  => tenant.id,
                                         :password   => password,
@@ -46,17 +45,21 @@ module VCAP
           user
         end
 
-        def find_user(id)
+        def find_user_by_id(id)
           @keystone.users.find_by_id(id)
+        end
+
+        def find_user_by_name(name)
+          @keystone.users.find_by_name(name)
         end
 
         def delete_user(id)
           @logger.info "Deleting user #{id}..."
-          user = find_user(id)
+          user = find_user_by_id(id)
           user.destroy
           @logger.info "Done deleting user."
         end
-        
+
         # Deletes all users for the given tenant id.
         # The user_name_filter can be used to ensure only users created by this service will be deleted.
         def delete_users_by_tenant_id(tenant_id, user_name_filter = nil)
@@ -80,7 +83,7 @@ module VCAP
           end
           nil
         end
-        
+
         #
         # === Params 
         # +role_id+:: Role id as string

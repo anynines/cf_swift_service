@@ -1,4 +1,20 @@
 GIT
+  remote: git://github.com/anynines/fog.git
+  revision: 85eef15c4fe4110f49c6ca4b7f4011c5c0b75145
+  ref: 85eef15c4fe4110f49c6ca4b7f4011c5c0b75145
+  specs:
+    fog (1.20.0)
+      builder
+      excon (~> 0.31.0)
+      fog-core (~> 1.21.0)
+      fog-json
+      formatador (~> 0.2.0)
+      mime-types
+      net-scp (~> 1.1)
+      net-ssh (>= 2.1.3)
+      nokogiri (>= 1.5.11)
+
+GIT
   remote: git://github.com/cloudfoundry/common.git
   revision: b96ec1192d961925d91e17ca3831f8547489d918
   ref: b96ec1192
@@ -163,21 +179,20 @@ GEM
       eventmachine (>= 1.0.0.beta.4)
     eventmachine (1.0.3)
     eventmachine_httpserver (0.2.1)
-    excon (0.27.6)
+    excon (0.31.0)
     fastercsv (1.5.5)
     fluent-logger (0.4.6)
       msgpack (>= 0.4.4, < 0.6.0, != 0.5.3, != 0.5.2, != 0.5.1, != 0.5.0)
       yajl-ruby (~> 1.0)
-    fog (1.17.0)
+    fog-core (1.21.0)
       builder
-      excon (~> 0.27.0)
+      excon (~> 0.31.0)
       formatador (~> 0.2.0)
       mime-types
-      multi_json (~> 1.0)
       net-scp (~> 1.1)
       net-ssh (>= 2.1.3)
-      nokogiri (~> 1.5)
-      ruby-hmac
+    fog-json (1.0.0)
+      multi_json (~> 1.0)
     formatador (0.2.4)
     grape (0.6.0)
       activesupport
@@ -212,8 +227,8 @@ GEM
       thin (>= 1.4.1)
     net-scp (1.1.2)
       net-ssh (>= 2.6.5)
-    net-ssh (2.7.0)
-    nokogiri (1.6.0)
+    net-ssh (2.8.0)
+    nokogiri (1.6.1)
       mini_portile (~> 0.5.0)
     posix-spawn (0.3.6)
     pry (0.9.12.2)
@@ -294,7 +309,7 @@ DEPENDENCIES
   do_sqlite3
   em-http-request
   eventmachine
-  fog (= 1.17.0)
+  fog!
   multi_json
   nats
   pry

@@ -23,6 +23,9 @@ require "swift_service/storage"
 #TODO Error case - User creation fails during provision (tenant then exists)
 class VCAP::Services::Swift::Node
 
+  # TODO: Delete when more plans exists and quota infos are stored in the plan itself.
+  BASE_QUOTA = 10737418240
+
   include VCAP::Services::Swift::Common
   include VCAP::Services::Swift
 
@@ -119,16 +122,17 @@ class VCAP::Services::Swift::Node
   def save_instance(instance)
     begin
       @logger.info("Saving instance #{instance.name}...")
-      fog_options                 = @fog_options[:storage]
       tenant                      = @identity.create_tenant(instance.tenant_name)
       instance.tenant_id          = tenant.id
-      fog_options[:hp_tenant_id]  = tenant.id
+      instance.account_meta_key   = generate_password
 
-      cf_service_admin_user       = @identity.find_user(@identity.keystone.current_user["id"])
+      cf_service_admin_user       = @identity.find_user_by_name(@fog_options[:storage][:hp_access_key])
+      @identity.assign_role_to_user_for_tenant(@fog_options[:swift_operator_role_id], cf_service_admin_user, tenant)
+      @identity.assign_role_to_user_for_tenant(@fog_options[:admin_reseller_role_id], cf_service_admin_user, tenant)
 
-      account_meta_key            = generate_password
-      instance.account_meta_key   = account_meta_key
-    # Don't eat up error messages and provide a backtrace (workaround for flaws in the base class).
+      set_meta_headers_for(instance)
+
+      # Don't eat up error messages and provide a backtrace (workaround for flaws in the base class).
     rescue StandardError => e
       @logger.error "An error occured: #{e.class.name}: #{e.message}\n#{e.backtrace}"
       raise e
@@ -138,24 +142,22 @@ class VCAP::Services::Swift::Node
     instance
   end
 
+  # Set the meta headers for the given instance
+  # * account_meta_key
+  # * quotas
+  def set_meta_headers_for(instance)
+    # Open storage with cf admin credentials for setting quotas and meta-key
+    storage_options_for_tenant = @fog_options[:storage].merge(:hp_tenant_id => instance.tenant_id)
+    storage = VCAP::Services::Swift::Storage.new(@logger, storage_options_for_tenant)
+    storage.set_meta_key_and_quotas(instance.account_meta_key, BASE_QUOTA)
+  end
+
   # When destroying an instance, the instance's tenant and the tenant's users are completely deleted.
   def destroy_instance(instance)
-    fog_options                 = @fog_options[:storage]
+    tenant      = @identity.find_tenant(instance.tenant_id)
+    fog_options = @fog_options[:storage].merge(:hp_tenant_id  => tenant.id)
 
-    # FIXME: For some reasons the admin user is not allowed to delete a swift account.
-    # As a workaround we create a temporary user to delete the swift account and then
-    # delete all users (incl. the newly created one).
-    tenant  = @identity.find_tenant(instance.tenant_id)
-    user_hash    = create_user_with_swiftoperator_role(tenant)
-    user = user_hash[:user]
-    username = user_hash[:username]
-    password = user_hash[:password]
-
-    fog_options[:hp_tenant_id]    = instance.tenant_id
-    fog_options[:hp_access_key]   = username
-    fog_options[:hp_secret_key]   = password
-    storage                       = VCAP::Services::Swift::Storage.new(@logger, fog_options)
-
+    storage = VCAP::Services::Swift::Storage.new(@logger, fog_options)
     storage.delete_account
 
     @logger.debug "Account meta data (should be 'Recently deleted'): " + storage.get_account_meta_data.body.to_s
@@ -172,18 +174,16 @@ class VCAP::Services::Swift::Node
   end
 
   def gen_credential(instance)
-    tenant      = @identity.find_tenant(instance.tenant_id)        
+    tenant      = @identity.find_tenant(instance.tenant_id)
     user_hash        = create_user_with_swiftoperator_role(tenant)
     user = user_hash[:user]
-    username = user_hash[:username]
-    password = user_hash[:password]
-    
+
     credentials = {
       "name"                    => instance.name,
       "authentication_uri"      => @fog_options[:storage][:hp_auth_uri],
-      "user_name"               => username,
+      "user_name"               => user_hash[:username],
       "user_id"                 => user.id,
-      "password"                => password,
+      "password"                => user_hash[:password],
       "tenant_name"             => tenant.name,
       "tenant_id"               => tenant.id,
       "availability_zone"       => @fog_options[:storage][:hp_avl_zone] || "nova",
@@ -192,9 +192,6 @@ class VCAP::Services::Swift::Node
       "self_signed_ssl"         => @fog_options[:storage][:self_signed_ssl] || false,
       "service_type"            => @fog_options[:storage][:hp_service_type]
     }
-
-    storage                     = VCAP::Services::Swift::Storage.new(@logger, fog_credentials_from_cf_swift_credentials(credentials))
-    storage.set_account_meta_key(instance.account_meta_key)
 
     credentials
   end
@@ -205,7 +202,7 @@ class VCAP::Services::Swift::Node
     username    = "#{UUIDTools::UUID.random_create.to_s}.swift.user@#{@fog_options[:name_suffix]}"
     password  = generate_password
     user      = @identity.create_user(tenant, username, password)
-    
+
     @identity.assign_role_to_user_for_tenant(@fog_options[:swift_operator_role_id], user, tenant)
     result_hash = {}
     result_hash[:username] = username
